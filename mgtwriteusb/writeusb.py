@@ -172,8 +172,7 @@ def main():
             elif not args.force:
                 raise Exception(f"UNSUPPORTED BOOT LOADER ('{disk.files[0].name}') in {args.diskimage}.")
         else:
-            disk.add_code_file(os.path.join(os.path.dirname(__file__), "samdos2"), at_index=0)
-            patch_boot_loader(disk.files[0].data)
+            disk.add_code_file(os.path.join(os.path.dirname(__file__), "samdos9"), at_index=0)
 
         if args.sniff:
             sys.exit(0)

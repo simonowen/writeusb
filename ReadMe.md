@@ -37,6 +37,11 @@ Or to install from local source code:
 python setup.py install
 ```
 
+To upgrade to the latest version:
+```
+python -m pip install --upgrade mgtwriteusb
+```
+
 ## Command-line Options
 
 ```
@@ -72,6 +77,11 @@ for use with SimCoupe or another disk writing program:
 ```
 writeusb image.dsk -o output.img
 ```
+
+Converting non-bootable disks will add a special version of SAMDISK v2, patched
+to dynamically support both 9-sector and 10-sector disks. It will appear in the
+directory listing as `samdisk9`. When an existing boot loader is patched it
+supports only the converted 9-sector disks.
 
 ## Troubleshooting
 
