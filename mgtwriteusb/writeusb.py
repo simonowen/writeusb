@@ -48,7 +48,7 @@ patches = {
       '-- -- -- -- 0A -- -- -- --'),
     ],
 
-    # These loaders follow the sector chain, so we just recognise them:
+    # These loaders follow the sector chain, so need no patching:
 
     'StarsAndSprites':
     [('3E 30 D3 FA 3E 7B 32 00 00 3A 00 00 FE 7B', '--')],
@@ -57,7 +57,13 @@ patches = {
     [('3E ?? 3C 08 01 ?? ?? ED 5B ?? ?? CB 7B', '--')],
 
     'D.T.A.':
-    [('3E ?? 21 ?? ?? D3 FA 77 BE 3E ?? D3 FA C2 00 00', '--')],
+    [('3E ?? 21 ?? ?? D3 FA 77 BE', '--')],
+
+    'Pro-Dos-v2':
+    [('ED 5F E6 07 D3 FE ED 78 CB 4F', '--')],
+
+    'rom3reset':
+    [('31 00 4F C3 C6 EB', '--')],
 }
 
 class Win32FloppyDevice:
