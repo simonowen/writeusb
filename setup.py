@@ -5,7 +5,7 @@ def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename), encoding='utf-8').read()
 
 setup(name='mgtwriteusb',
-      version='0.9.1',
+      version='0.9.2',
       author='Simon Owen',
       author_email='simon@simonowen.com',
       description='Write SAM Coupé disk images to USB floppy drive',

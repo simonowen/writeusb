@@ -45,7 +45,7 @@ python -m pip install --upgrade mgtwriteusb
 ## Command-line Options
 
 ```
-usage: writeusb [-h] [-o OUTPUT] [-n] [-f] [-a] [-s] diskimage
+usage: writeusb [-h] [-o OUTPUT] [-p] [-n] [-f] [-a] [-s] diskimage
 
 Write SAM disk image to USB floppy drive
 
@@ -56,6 +56,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         output to disk image file
+  -p, --pad             pad output disk image to 10 sectors
   -n, --noverify        don't verify disk after writing
   -f, --force           write even if boot loader is unknown
   -a, --all             write all tracks, not just used tracks
