@@ -6,7 +6,7 @@
 
 import os, sys, re, argparse
 from mmap import mmap
-from mgtdisklib import Disk
+from mgtdisklib import Disk, Image
 
 if sys.platform == 'win32':
     import win32file, winioctlcon
@@ -151,12 +151,30 @@ def used_tracks_set(image, all=False):
 
     return used_tracks
 
+def pad_9_to_10_spt(image):
+    """Add 10th sector to each track of a 9-sector image"""
+    image10 = Image(spt=10)
+    dir_tracks = Disk.from_image(image).dir_tracks
+    dir_sector = (b'\x00\x20' + bytes(256 - 2)) * 2
+
+    for head in range(2):
+        for cyl in range(80):
+            for sector in range(9):
+                track = (head << 7) | cyl
+                image10.write_sector(track, 1 + sector, image.read_sector(track, 1 + sector))
+
+            padding = dir_sector if track < dir_tracks else bytes(512)
+            image10.write_sector(track, 10, padding)
+
+    return image10
+
 def main():
     """Main program"""
 
     parser = argparse.ArgumentParser(description="Write SAM disk image to USB floppy drive")
     parser.add_argument('diskimage')
     parser.add_argument('-o', '--output', help="output to disk image file")
+    parser.add_argument('-p', '--pad', default=False, action='store_true', help="pad output disk image to 10 sectors")
     parser.add_argument('-n', '--noverify', default=False, action='store_true', help="don't verify disk after writing")
     parser.add_argument('-f', '--force', default=False, action='store_true', help="write even if boot loader is unknown")
     parser.add_argument('-a', '--all', default=False, action='store_true', help="write all tracks, not just used tracks")
@@ -179,6 +197,7 @@ def main():
                 raise Exception(f"UNSUPPORTED BOOT LOADER ('{disk.files[0].name}') in {args.diskimage}.")
         else:
             disk.add_code_file(os.path.join(os.path.dirname(__file__), "samdos9"), at_index=0)
+            args.pad = False
 
         if args.sniff:
             sys.exit(0)
@@ -186,7 +205,10 @@ def main():
         image = disk.to_image(spt=9)
 
         if args.output:
-            print(f'Writing 9-sector image to {args.output}')
+            if args.pad:
+                image = pad_9_to_10_spt(image)
+
+            print(f'Writing {image.spt}-sector image to {args.output}')
             image.save(args.output)
             sys.exit(0)
 
@@ -203,7 +225,7 @@ def main():
 
         for i,track in enumerate(used_tracks):
             if track in used_tracks:
-                track_data = b''.join(image.read_sector(track, sector) for sector in range(1,10))
+                track_data = b''.join(image.read_sector(track, 1 + sector) for sector in range(9))
                 f.seek(image.sector_offset(track, 1))
                 f.write(track_data)
             sys.stdout.write(f'\rWriting... {int(i*100/(len(used_tracks)-1))}%')
@@ -212,7 +234,7 @@ def main():
         if not args.noverify:
             print('')
             for i,track in enumerate(used_tracks):
-                track_data = b''.join(image.read_sector(track, sector) for sector in range(1,10))
+                track_data = b''.join(image.read_sector(track, 1 + sector) for sector in range(9))
                 f.seek(image.sector_offset(track, 1))
                 if f.read(len(track_data)) != track_data:
                     raise RuntimeError(f'data mismatch on track {track}')
